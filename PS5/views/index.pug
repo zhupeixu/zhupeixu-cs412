@@ -1,0 +1,60 @@
+doctype html
+html
+  head
+    title Node External Data
+  body
+    script(src="https://code.jquery.com/jquery-3.6.0.min.js")
+    script.
+      $(document).ready(function() {
+        $('form').submit(function(event) {
+          event.preventDefault();
+          const form = $(this);
+          const word = form.find('input[name="word"]').val();
+          const route = form.attr('action');
+          $.ajax({
+            type: 'POST',
+            url: route,
+            data: { word },
+            success: function(response) {
+              if (response.error) {
+                $('#result').html(`<p>${response.error}</p>`);
+              } else {
+                if (response.data.similarTo) {
+                  const wordsList = response.data.similarTo.map((word) => `<p>${word}</p>`).join('');
+                  $('#result').html(wordsList);
+                } else {
+                  $('#result').html(`<p>${response.data.message}</p>`);
+                }
+                $('#cacheStatus').text(`Data came from ${response.fromCache ? 'cache' : 'API'}`);
+              }
+            },
+            error: function(xhr, status, error) {
+              $('#result').html('<p>An error occurred while processing your request</p>');
+            },
+          });
+        });
+      });
+    div
+      form(action="/ps4/promises" method="POST")
+        input(type="text" name="word" placeholder="Enter a word")
+        button(type="submit") Find Synonyms (Promise)
+    div#result
+    div
+      p Cache Status: <span id="cacheStatus"></span>
+
+    //- form(action="/ps4/async-await" method="POST")
+    //-     input(type="text" name="word" placeholder="Enter a word")
+    //-     button(type="submit") Find Synonyms (Async/Await)
+
+    //- form(action="/ps4/callback" method="POST")
+    //-     input(type="text" name="word" placeholder="Enter a word")
+    //-     button(type="submit") Find Synonyms (Callback)
+
+    //- if data
+    //-   if data.similarTo
+    //-     each word in data.similarTo
+    //-       p= word
+    //-   else
+    //-     p= data.message
+    //- else if error
+    //-   p= error
